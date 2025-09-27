@@ -1,14 +1,21 @@
 package com.example.profilecardapp
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +45,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ProfileCard() {
+
+    var following by rememberSaveable { mutableStateOf(false) }
+    var followers by rememberSaveable { mutableStateOf(99) }
+    val context = LocalContext.current
+
+    val btnColor: Color by animateColorAsState(
+        targetValue = if(following) Color.Gray else Color(0xFF1E88E5),
+        label = "followButtonColor"
+    )
+
     Card(
         modifier = Modifier.width(150.dp),
         shape = RoundedCornerShape(12.dp),
@@ -79,15 +96,37 @@ fun ProfileCard() {
 
             Spacer(Modifier.height(20.dp))
 
+            Text(
+                text = "Followers: $followers",
+                fontSize = 14.sp,
+                color = Color.DarkGray
+            )
+
+            Spacer(Modifier.height(20.dp))
+
             Button(
-                onClick = { /* TODO: for future smth */ },
+                onClick = {
+                    if(following) {
+                        following = false
+                        followers--
+                        Toast.makeText(context, "You have successfully unfollowed", Toast.LENGTH_SHORT).show()
+                    }
+                    else {
+                        following = true
+                        followers++
+
+                        if (followers == 100) {
+                            Toast.makeText(context, "🎉 Congrats! You are the 100th follower", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                },
                 modifier = Modifier.width(120.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1E88E5)
+                    containerColor = btnColor
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Follow")
+                Text(if (following) "Unfollow" else "Follow")
             }
         }
     }
