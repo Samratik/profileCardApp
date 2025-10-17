@@ -8,16 +8,14 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,9 +39,21 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+data class Follower(val id: Int, val name: String, val avatar: Int = R.drawable.avatar)
+
 @Composable
 fun ProfileScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val followersList = remember {
+        mutableStateListOf(
+            Follower(1, "Aruzhan"),
+            Follower(2, "Marat"),
+            Follower(3, "Aliya"),
+            Follower(4, "Kairat"),
+            Follower(5, "Dina")
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -53,13 +63,26 @@ fun ProfileScreen() {
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
+                .padding(innerPadding)
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            ProfileCard(snackbarHostState = snackbarHostState)
+            StoriesRow(followers = followersList)
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                ProfileCard(snackbarHostState = snackbarHostState)
+            }
+
+            FollowersList(
+                followers = followersList,
+                onRemove = { f -> followersList.remove(f) }
+            )
         }
     }
 }
@@ -174,6 +197,87 @@ fun ProfileCard(snackbarHostState: SnackbarHostState) {
                 )
             }
 
+        }
+    }
+}
+
+@Composable
+fun StoriesRow(followers: List<Follower>) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(vertical = 8.dp)
+    ) {
+        items(followers, key = { it.id }) { f ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(f.avatar),
+                    contentDescription = f.name,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(f.name, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+@Composable
+fun FollowersList(
+    followers: List<Follower>,
+    onRemove: (Follower) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(bottom = 8.dp)
+    ) {
+        item {
+            Text(
+                "Followers",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+            )
+        }
+
+        items(followers, key = { it.id }) { f ->
+            FollowerItem(follower = f, onRemove = { onRemove(f) })
+        }
+    }
+}
+
+@Composable
+fun FollowerItem(
+    follower: Follower,
+    onRemove: () -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(follower.avatar),
+                    contentDescription = follower.name,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(follower.name, fontWeight = FontWeight.Medium)
+            }
+            OutlinedButton(onClick = onRemove, shape = RoundedCornerShape(8.dp)) {
+                Text("Remove")
+            }
         }
     }
 }
