@@ -1,7 +1,10 @@
 package com.example.profilecardapp
 
-data object Routes {
+object Routes {
     const val HOME = "home"
-    const val PROFILE = "profile/{userId}"
-    const val EDITPROFILE = "Settings"
+    const val PROFILE = "profile"
+    const val EDITPROFILE = "editProfile"
+    const val USERS = "users"
 }
+
+
