@@ -9,18 +9,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserListScreen(
-    vm: UserListViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    vm: UserListViewModel = hiltViewModel()
 ) {
     val users by vm.users.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("All Users (Room + Retrofit)") },
+                title = { Text("All Users (Room + Retrofit + Hilt)") },
                 actions = {
                     IconButton(onClick = { vm.refresh() }) {
                         Icon(Icons.Default.Refresh, contentDescription = null)

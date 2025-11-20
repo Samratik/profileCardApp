@@ -14,7 +14,7 @@ fun AppNav() {
         composable(Routes.HOME)        { HomeScreen(nav) }
         composable(Routes.PROFILE)     { ProfileScreen(nav = nav, vm = vm) }
         composable(Routes.EDITPROFILE) { EditProfileScreen(nav = nav, vm = vm) }
-        composable(Routes.USERS)       { UserListScreen() }
+        composable("users")            { UserListScreen() }
     }
 
 }

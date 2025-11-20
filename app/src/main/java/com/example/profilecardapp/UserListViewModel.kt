@@ -1,15 +1,17 @@
 package com.example.profilecardapp
 
-import android.app.Application
-import androidx.lifecycle.*
-import com.example.profilecardapp.*
-import kotlinx.coroutines.flow.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserListViewModel(app: Application) : AndroidViewModel(app) {
-
-    private val db = AppDatabase.getInstance(app)
-    private val repo = UserRepository(db.userDao(), ApiClient.api)
+@HiltViewModel
+class UserListViewModel @Inject constructor(
+    private val repo: UserRepository
+) : ViewModel() {
 
     val users = repo.getLocalUsers()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
