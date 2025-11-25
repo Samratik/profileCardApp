@@ -5,6 +5,7 @@ object Routes {
     const val PROFILE = "profile"
     const val EDITPROFILE = "editProfile"
     const val USERS = "users"
+    const val FEED = "feed"
 }
 
 
