@@ -43,23 +43,31 @@ fun UserListScreen(
             )
         }
     ) { inner ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(inner)
         ) {
-            if (users.isEmpty()) {
-                items(5) {
-                    ShimmerUserRow()
-                    Divider()
-                }
-            } else {
-                items(users) { u ->
-                    Text(
-                        text = "${u.name} – ${u.bio2}",
-                        modifier = Modifier.padding(12.dp)
-                    )
-                    Divider()
+            RecomposeCounter("UserListScreen")
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(inner)
+            ) {
+                if (users.isEmpty()) {
+                    items(5) {
+                        ShimmerUserRow()
+                        Divider()
+                    }
+                } else {
+                    items(users) { u ->
+                        Text(
+                            text = "${u.name} – ${u.bio2}",
+                            modifier = Modifier.padding(12.dp)
+                        )
+                        Divider()
+                    }
                 }
             }
         }

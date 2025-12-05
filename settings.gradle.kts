@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ProfileCardApp"
 include(":app")
+include(":baselineprofile")

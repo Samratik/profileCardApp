@@ -2,8 +2,8 @@ package com.example.profilecardapp
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,7 +32,7 @@ fun AppNav() {
                 items.forEach { route ->
                     val (icon, label) = when (route) {
                         Routes.HOME  -> Icons.Default.Person to "Profile"
-                        Routes.USERS -> Icons.Default.List to "Users"
+                        Routes.USERS -> Icons.AutoMirrored.Filled.List to "Users"
                         Routes.FEED  -> Icons.Default.Home to "Feed"
                         else -> Icons.Default.Home to route
                     }

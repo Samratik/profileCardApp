@@ -2,10 +2,8 @@
 
 package com.example.profilecardapp
 
-import android.R.attr.scaleX
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,12 +41,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.graphicsLayer
-import com.airbnb.lottie.compose.*
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import kotlinx.coroutines.delay
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.airbnb.lottie.compose.LottieConstants
 
 
 data class Follower(val id: Int, val name: String, val avatar: Int = R.drawable.avatar)
@@ -60,7 +58,7 @@ fun ProfileScreen(
     vm: ProfileViewModel
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val nextId = rememberSaveable { mutableStateOf(6) }
+    val nextId = rememberSaveable { mutableIntStateOf(6) }
 
     val followersList = remember {
         mutableStateListOf(
@@ -82,8 +80,8 @@ fun ProfileScreen(
 
         floatingActionButton = {
             FloatingActionButton(onClick = {
-                followersList.add(Follower(nextId.value, "New #${nextId.value}"))
-                nextId.value += 1
+                followersList.add(Follower(nextId.intValue, "New #${nextId.intValue}"))
+                nextId.intValue += 1
             }) { Text("+", fontSize = 20.sp)  }
         }
     ) { innerPadding ->
@@ -122,15 +120,11 @@ fun ProfileCard(
     val scope = rememberCoroutineScope()
     var showLikeAnim by remember { mutableStateOf(false) }
 
-    val infinite = rememberInfiniteTransition(label = "avatarPulse")
-    val avatarScale by infinite.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ), label = "avatarScale"
-    )
+    val followersLabel by remember {
+        derivedStateOf {
+            "Followers: ${vm.followers}"
+        }
+    }
 
     val btnColor by animateColorAsState(
         targetValue = if (following) Color.Gray else Color(0xFF1E88E5),
@@ -157,20 +151,11 @@ fun ProfileCard(
                 modifier = Modifier.padding(vertical = 24.dp, horizontal = 50.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.avatar),
-                    contentDescription = "Avatar",
-                    modifier = Modifier
-                        .size(72.dp)
-                        .graphicsLayer {
-                            scaleX = avatarScale
-                            scaleY = avatarScale
-                        }
-                        .clip(CircleShape)
-                )
+                Avatar()
 
                 Spacer(Modifier.height(16.dp))
 
+                RecomposeCounter("ProfileCard")
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -207,7 +192,7 @@ fun ProfileCard(
                     label = "followersAnim"
                 ) { count ->
                     Text(
-                        text = "Followers: ${vm.followers}",
+                        text = followersLabel,
                         fontSize = 14.sp,
                         color = Color.DarkGray
                     )
@@ -341,8 +326,11 @@ fun StoriesRow(followers: List<Follower>) {
     ) {
         items(followers, key = { it.id }) { f ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(
-                    painter = painterResource(f.avatar),
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(f.avatar)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = f.name,
                     modifier = Modifier
                         .size(64.dp)
@@ -402,8 +390,11 @@ fun FollowerItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(follower.avatar),
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(follower.avatar)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = follower.name,
                     modifier = Modifier
                         .size(48.dp)
@@ -417,6 +408,20 @@ fun FollowerItem(
             }
         }
     }
+}
+
+@Composable
+fun RecomposeCounter(tag: String) {
+    var count by remember { mutableIntStateOf(0) }
+    SideEffect {
+        count++
+    }
+
+    Text(
+        text = "$tag recomposed: $count",
+        color = Color.Red,
+        fontSize = 12.sp
+    )
 }
 
 @Preview(showBackground = true)
